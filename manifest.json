@@ -1,0 +1,16 @@
+{
+    "manifest_version": 3,
+    "name": "Add Harvest Button to monday.com",
+    "description": "Adds a Harvest button to pulses on monday.com",
+    "version": "1.0",
+    "author": "Timo Hubois",
+    "content_scripts": [
+        {
+          "matches": [
+            "https://*.monday.com/boards/*",
+            "https://*.monday.com/boards/*/pulses/*"
+          ],
+          "js": ["scripts/main.js"]
+        }
+    ]
+  }

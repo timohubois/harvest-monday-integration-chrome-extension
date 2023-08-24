@@ -1,0 +1,15 @@
+{
+  "name": "add-harvest-button-to-monday-pulse-for-chrome",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.0.0-beta.18",
+    "vite": "^4.4.9"
+  }
+}
