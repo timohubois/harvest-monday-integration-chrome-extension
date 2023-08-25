@@ -1,10 +1,3 @@
-import './platform.harvestapp.js'
-
-window._harvestPlatformConfig = {
-  applicationName: 'MondayIntegration',
-  skipStyling: true
-}
-
 window.addEventListener("message", function (event) {
   if (event.origin != "https://platform.harvestapp.com") {
     return
@@ -20,6 +13,13 @@ window.addEventListener("message", function (event) {
 })
 
 window.addEventListener('load', () => {
+  import('./platform.harvestapp.js')
+
+  window._harvestPlatformConfig = {
+    applicationName: 'MondayIntegration',
+    skipStyling: true
+  }
+
   const iframe = document.querySelector('iframe.popup-iframe')
   initIframe(iframe)
 })

@@ -1,9 +1,10 @@
-import './platform.harvestapp.js'
 
 if (
   window.location.href.includes('monday.com') &&
   (window.location.href.includes('/pulses/') || window.location.href.includes('/boards/'))) {
-  window._harvestPlatformConfig = {
+    import('./platform.harvestapp.js')
+
+    window._harvestPlatformConfig = {
     applicationName: 'MondayIntegration',
     skipStyling: false
   }
