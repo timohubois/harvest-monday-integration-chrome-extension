@@ -1,34 +1,49 @@
+initMain()
 
-if (
-  window.location.href.includes('monday.com') &&
-  (window.location.href.includes('/pulses/') || window.location.href.includes('/boards/'))) {
+function initMain () {
+
+  resetStorage()
+
+  if (window.location.href.includes('monday.com')) {
     import('./platform.harvestapp.js')
 
     window._harvestPlatformConfig = {
-    applicationName: 'MondayIntegration',
-    skipStyling: false
+      applicationName: 'MondayIntegration',
+      skipStyling: false
+    }
+
+    window.addEventListener('load', onLoad)
+    window.addEventListener('blur', () => { resetStorage() })
+    window.addEventListener('focus', () => { updateStorage() })
+    window.addEventListener('pagehide', () => { resetStorage() })
+    window.addEventListener('beforeunload', () => { resetStorage() })
   }
-  window.addEventListener('load', addHarvestButtonTimerToPulse)
-} else {
-  resetStorage()
+
+  return () => {
+    window.removeEventListener('load', onLoad)
+    window.removeEventListener('blur', () => { resetStorage() })
+    window.removeEventListener('focus', () => { updateStorage() })
+    window.removeEventListener('pagehide', () => { resetStorage() })
+    window.removeEventListener('beforeunload', () => { resetStorage() })
+  }
 }
 
-function addHarvestButtonTimerToPulse () {
+function onLoad () {
   let initialLocation = window.location.href
 
-  maybeInitHarvestTimerButton()
+  maybeAddTimerButtonToPulse()
   monitorLocationChanges()
 
   async function monitorLocationChanges () {
     if (initialLocation !== window.location.href) {
       initialLocation = window.location.href
       await updateStorage()
-      maybeInitHarvestTimerButton()
+      maybeAddTimerButtonToPulse()
     }
     setTimeout(monitorLocationChanges, 1000)
   }
 
-  async function maybeInitHarvestTimerButton () {
+  async function maybeAddTimerButtonToPulse () {
     try {
       const path = window.location.pathname
 
@@ -168,7 +183,7 @@ function addHarvestButtonTimerToPulse () {
         const pulseActionsWrapper = document.querySelector('.pulse_actions_wrapper')
         if (!pulseActionsWrapper) {
           console.warn('Retrying to init Harvest Timer Button in 3 seconds...')
-          setTimeout(maybeInitHarvestTimerButton, 3000)
+          setTimeout(maybeAddTimerButtonToPulse, 3000)
           return
         }
         pulseActionsWrapper.insertAdjacentHTML('beforeend', styles)
@@ -185,7 +200,7 @@ function addHarvestButtonTimerToPulse () {
     catch (e) {
       console.warn(e)
       console.warn('Retrying to init Harvest Timer Button in 3 seconds...')
-      setTimeout(maybeInitHarvestTimerButton, 3000)
+      setTimeout(maybeAddTimerButtonToPulse, 3000)
     }
   }
 }

@@ -1,4 +1,17 @@
-window.addEventListener("message", function (event) {
+initPopup()
+
+function initPopup () {
+
+  window.addEventListener('load', onLoad)
+  window.addEventListener('message', onMessage)
+
+  return () => {
+    window.removeEventListener('load', onLoad)
+    window.removeEventListener('message', onMessage)
+  }
+}
+
+function onMessage (event) {
   if (event.origin != "https://platform.harvestapp.com") {
     return
   }
@@ -10,9 +23,9 @@ window.addEventListener("message", function (event) {
   if (event.data.type == "frame:close" && window.document.title == "Harvest") {
     window.close()
   }
-})
+}
 
-window.addEventListener('load', () => {
+function onLoad () {
   import('./platform.harvestapp.js')
 
   window._harvestPlatformConfig = {
@@ -22,9 +35,13 @@ window.addEventListener('load', () => {
 
   const iframe = document.querySelector('iframe.popup-iframe')
   initIframe(iframe)
-})
+}
 
 async function initIframe (iframe) {
+  if (!iframe) {
+    return
+  }
+
   try {
     const dataFromStore = await chrome.storage.sync.get('HarvestMondayIntegration')
     const {
@@ -67,8 +84,8 @@ async function initIframe (iframe) {
 
     iframe.src = url?.href || ''
 
-    const newIframe = iframe.cloneNode(true)
-    iframe.parentNode.replaceChild(newIframe, iframe)
+    document.body.innerHTML = ''
+    document.body.appendChild(iframe)
 
   } catch (error) {
     console.error('Error setting up iframe:', error)
