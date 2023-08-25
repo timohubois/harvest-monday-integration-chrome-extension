@@ -17,8 +17,7 @@
     "content_scripts": [
         {
           "matches": [
-            "https://*.monday.com/boards/*",
-            "https://*.monday.com/boards/*/pulses/*"
+            "https://*/*"
           ],
           "js": [
             "scripts/main.js",

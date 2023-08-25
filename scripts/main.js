@@ -1,11 +1,16 @@
 import './platform.harvestapp.js'
 
-window._harvestPlatformConfig = {
-  applicationName: 'MondayIntegration',
-  skipStyling: false
+if (
+  window.location.href.includes('monday.com') &&
+  (window.location.href.includes('/pulses/') || window.location.href.includes('/boards/'))) {
+  window._harvestPlatformConfig = {
+    applicationName: 'MondayIntegration',
+    skipStyling: false
+  }
+  window.addEventListener('load', addHarvestButtonTimerToPulse)
+} else {
+  resetStorage()
 }
-
-window.addEventListener('load', addHarvestButtonTimerToPulse)
 
 function addHarvestButtonTimerToPulse () {
   let initialLocation = window.location.href
@@ -13,13 +18,13 @@ function addHarvestButtonTimerToPulse () {
   maybeInitHarvestTimerButton()
   monitorLocationChanges()
 
-  function monitorLocationChanges () {
+  async function monitorLocationChanges () {
     if (initialLocation !== window.location.href) {
       initialLocation = window.location.href
-      updateStorage()
+      await updateStorage()
       maybeInitHarvestTimerButton()
     }
-    setTimeout(monitorLocationChanges, 1500)
+    setTimeout(monitorLocationChanges, 1000)
   }
 
   async function maybeInitHarvestTimerButton () {
@@ -28,22 +33,15 @@ function addHarvestButtonTimerToPulse () {
 
       if (path.includes('/pulses/')) {
         document.querySelectorAll('.harvest-timer').forEach(e => e.remove())
-
-        const data = getDataFromMonday()
-        const { projectName } = data
-        const { pulseName } = data
-        const { pulseId } = data
-        const { boardId } = data
-        const { permalink } = data
-
-        const dataFromStore = await chrome.storage.sync.get('HarvestMondayIntegration')
-        dataFromStore.projectName = projectName
-        dataFromStore.pulseName = pulseName
-        dataFromStore.pulseId = pulseId
-        dataFromStore.boardId = boardId
-        dataFromStore.permalink = permalink
-
-        chrome.storage.sync.set({ HarvestMondayIntegration: dataFromStore })
+        await updateStorage()
+        const data = await chrome.storage.sync.get('HarvestMondayIntegration')
+        const {
+          projectName,
+          pulseName,
+          pulseId,
+          boardId,
+          permalink
+        } = data.HarvestMondayIntegration || {}
 
         const timerButtonHtml = `
           <div class='harvest-timer' id='harvest-timer-obj'
@@ -54,6 +52,7 @@ function addHarvestButtonTimerToPulse () {
             >
           </div>`
 
+        // Overwrites the default Harvest CSS styles, will also be used as fallback if Harvest CSS fails to load.
         const styles = `
           <style>
           .harvest-timer {
@@ -61,13 +60,14 @@ function addHarvestButtonTimerToPulse () {
             background-image: linear-gradient(#fff, #eee);
             border: 1px solid #bbb;
             border-radius: 2px;
-            color: var(--primary-text-color);
+            color: var(--primary-text-color) !important;
             cursor: pointer;
             display: grid !important;
             font: inherit;
             font-size: 0;
             height: 30px !important;
             line-height: 1;
+            margin-block-start: -7px !important;
             margin-inline-end: -3px !important;
             padding: 3px;
             place-content: center !important;
@@ -189,60 +189,39 @@ function addHarvestButtonTimerToPulse () {
   }
 }
 
-function getDataFromMonday() {
-  const path = window.location.pathname;
-  const urlBase = new URL(window.location.href).origin;
+async function getDataFromMonday () {
+  const path = window.location.pathname
+  const urlBase = new URL(window.location.href).origin
 
-  const selectedProject = document.querySelector('.home-control-base-item-component.selected');
-  const projectName = selectedProject?.querySelector('.text-with-highlights > span')?.textContent || '';
+  const selectedProject = document.querySelector('.home-control-base-item-component.selected')
+  const projectName = selectedProject?.querySelector('.text-with-highlights > span')?.textContent || ''
 
-  const pulseNameElement = document.querySelector('.pulse_title h2');
-  const pulseName = pulseNameElement?.textContent || '';
+  const pulseNameElement = document.querySelector('.pulse_title h2')
+  const pulseName = pulseNameElement?.textContent || ''
 
-  const pulseId = path.substring(path.lastIndexOf('/') + 1) || '';
-  const boardId = path.split('/')[2] || '';
+  const pulseId = path.substring(path.lastIndexOf('/') + 1) || ''
+  const boardId = path.split('/')[2] || ''
 
   const permalink = (urlBase && boardId && pulseId)
     ? `${urlBase}/${boardId}/pulses/${pulseId}`
-    : '';
+    : (urlBase && boardId && pulseId) ? `${urlBase}/${boardId}` : ''
 
   if (path.includes('/pulses/')) {
-    return { projectName, pulseName, pulseId, boardId, permalink };
+    return { projectName, pulseName, pulseId, boardId, permalink }
   } else if (path.includes('/boards/')) {
-    return { projectName, pulseName: '', pulseId: '', boardId, permalink: '' };
+    return { projectName, pulseName: 'Miscellaneous > REPLACE_THIS_WITH_A_DESCRIPTION', pulseId: 'miscellaneous', boardId, permalink }
   } else {
-    return {};
+    return {}
   }
 }
 
-
-async function updateStorage() {
-  const data = getDataFromMonday();
-  const dataFromStore = await chrome.storage.sync.get('HarvestMondayIntegration');
-  Object.assign(dataFromStore, data);
-  await chrome.storage.sync.set({ HarvestMondayIntegration: dataFromStore });
+async function updateStorage () {
+  const data = await getDataFromMonday()
+  const { HarvestMondayIntegration } = await chrome.storage.sync.get('HarvestMondayIntegration')
+  Object.assign(HarvestMondayIntegration, data)
+  await chrome.storage.sync.set({ HarvestMondayIntegration: HarvestMondayIntegration })
 }
 
-window.addEventListener("message", function (event) {
-  if (event.origin != "https://platform.harvestapp.com") {
-    return
-  }
-
-  if (event.data.type == "timer:started") {
-    let data = getDataFromMonday()
-    data.event = 'timer:started'
-    data.external_reference = event.data.value?.external_reference || ''
-    chrome.storage.sync.set({ HarvestMondayIntegration: data })
-  }
-
-  if (event.data.type == "timer:stopped") {
-    let data = getDataFromMonday()
-    data.event = 'timer:stopped'
-    data.external_reference = event.data.value?.external_reference || ''
-    chrome.storage.sync.set({ "HarvestMondayIntegration": data })
-  }
-
-  if (event.data.type == "frame:resize") {
-    document.querySelector("iframe").style.height = event.data.value + "px"
-  }
-})
+async function resetStorage () {
+  await chrome.storage.sync.set({ HarvestMondayIntegration: { projectName: 'Internal' } })
+}

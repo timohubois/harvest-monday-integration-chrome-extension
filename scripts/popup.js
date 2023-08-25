@@ -14,7 +14,7 @@ window.addEventListener("message", function (event) {
     document.querySelector("iframe").style.height = event.data.value + "px"
   }
 
-  if (event.data.type == "frame:close") {
+  if (event.data.type == "frame:close" && window.document.title == "Harvest") {
     window.close()
   }
 })
@@ -39,10 +39,10 @@ async function initIframe (iframe) {
     const id = external_reference?.id
     const group_id = external_reference?.group_id
 
-    const isCurrentlyRunning = Boolean(id && group_id)
+    const isTimerCurrentlyRunning = Boolean(id && group_id)
 
     const url = new URL('https://platform.harvestapp.com/platform/timer')
-    if (!isCurrentlyRunning) {
+    if (!isTimerCurrentlyRunning) {
       url.searchParams.append('external_item_id', pulseId || '')
       url.searchParams.append('external_item_name', pulseName || '')
       url.searchParams.append('external_group_id', boardId || '')
