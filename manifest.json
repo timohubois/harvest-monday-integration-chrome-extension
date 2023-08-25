@@ -4,13 +4,26 @@
     "description": "Adds a Harvest button to pulses on monday.com",
     "version": "1.0",
     "author": "Timo Hubois",
+    "icons": {
+      "16": "public/icon16.png",
+      "48": "public/icon48.png",
+      "128": "public/icon128.png"
+    },
+    "permissions" : ["tabs", "storage"],
+    "action": {
+      "default_popup": "popup.html",
+      "default_title": "Harvest"
+    },
     "content_scripts": [
         {
           "matches": [
             "https://*.monday.com/boards/*",
             "https://*.monday.com/boards/*/pulses/*"
           ],
-          "js": ["scripts/main.js"]
+          "js": [
+            "scripts/main.js",
+            "scripts/popup.js"
+          ]
         }
     ]
   }
