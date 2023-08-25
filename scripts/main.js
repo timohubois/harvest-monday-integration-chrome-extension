@@ -203,8 +203,8 @@ async function getDataFromMonday () {
   const boardId = path.split('/')[2] || ''
 
   const permalink = (urlBase && boardId && pulseId)
-    ? `${urlBase}/${boardId}/pulses/${pulseId}`
-    : (urlBase && boardId && pulseId) ? `${urlBase}/${boardId}` : ''
+    ? `${urlBase}/boards/${boardId}/pulses/${pulseId}`
+    : (urlBase && boardId && pulseId) ? `${urlBase}/boards/${boardId}` : ''
 
   if (path.includes('/pulses/')) {
     return { projectName, pulseName, pulseId, boardId, permalink }
