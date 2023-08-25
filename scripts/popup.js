@@ -65,17 +65,10 @@ async function initIframe (iframe) {
       return
     }
 
-    iframe.src = ''
     iframe.src = url?.href || ''
 
     const newIframe = iframe.cloneNode(true)
     iframe.parentNode.replaceChild(newIframe, iframe)
-
-    let harvestMessaging = document.getElementById('harvest-messaging')
-    let harvestTimerObj = document.querySelector('iframe.popup-iframe')
-    let event = new Event('harvest-event:timers:add')
-    event.element = harvestTimerObj
-    harvestMessaging.dispatchEvent(event)
 
   } catch (error) {
     console.error('Error setting up iframe:', error)
