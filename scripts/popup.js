@@ -39,14 +39,21 @@ async function initIframe (iframe) {
     const id = external_reference?.id
     const group_id = external_reference?.group_id
 
+    const isCurrentlyRunning = Boolean(id && group_id)
+
     const url = new URL('https://platform.harvestapp.com/platform/timer')
-    url.searchParams.append('external_item_id', id || pulseId || '')
-    url.searchParams.append('external_item_name', pulseName || '')
-    url.searchParams.append('external_group_id', group_id || boardId || '')
-    url.searchParams.append('permalink', permalink || '')
-    url.searchParams.append('default_project_name', projectName || '')
+    if (!isCurrentlyRunning) {
+      url.searchParams.append('external_item_id', pulseId || '')
+      url.searchParams.append('external_item_name', pulseName || '')
+      url.searchParams.append('external_group_id', boardId || '')
+      url.searchParams.append('permalink', permalink || '')
+      url.searchParams.append('default_project_name', projectName || '')
+    } else {
+      url.searchParams.append('external_item_id', id || '')
+      url.searchParams.append('external_item_name', pulseName || '')
+      url.searchParams.append('external_group_id', group_id || '')
+    }
     url.searchParams.append('closable', 'false')
-    // url.searchParams.append('chromeless', 'true')
 
     for (const [key, value] of url.searchParams.entries()) {
       if (!value) {

@@ -10,18 +10,19 @@ window.addEventListener('load', addHarvestButtonTimerToPulse)
 function addHarvestButtonTimerToPulse () {
   let initialLocation = window.location.href
 
-  initHarvestTimerButton()
+  maybeInitHarvestTimerButton()
   monitorLocationChanges()
 
   function monitorLocationChanges () {
     if (initialLocation !== window.location.href) {
       initialLocation = window.location.href
-      initHarvestTimerButton()
+      updateStorage()
+      maybeInitHarvestTimerButton()
     }
     setTimeout(monitorLocationChanges, 1500)
   }
 
-  async function initHarvestTimerButton () {
+  async function maybeInitHarvestTimerButton () {
     try {
       const path = window.location.pathname
 
@@ -164,10 +165,15 @@ function addHarvestButtonTimerToPulse () {
         </style>`
 
         const pulseActionsWrapper = document.querySelector('.pulse_actions_wrapper')
+        if (!pulseActionsWrapper) {
+          console.warn('Retrying to init Harvest Timer Button in 3 seconds...')
+          setTimeout(maybeInitHarvestTimerButton, 3000)
+          return
+        }
         pulseActionsWrapper.insertAdjacentHTML('beforeend', styles)
         pulseActionsWrapper.insertAdjacentHTML('beforeend', timerButtonHtml)
 
-        // Trigger Harvest event to add the timber button.
+        // Trigger Harvest event to add the Timer button.
         let harvestMessaging = document.getElementById('harvest-messaging')
         let harvestTimerObj = document.getElementById('harvest-timer-obj')
         let event = new Event('harvest-event:timers:add')
@@ -177,43 +183,44 @@ function addHarvestButtonTimerToPulse () {
     }
     catch (e) {
       console.warn(e)
-      console.warn('Retrying to init Harvest Timber Button in 3 seconds...')
-      setTimeout(initHarvestTimerButton, 3000)
+      console.warn('Retrying to init Harvest Timer Button in 3 seconds...')
+      setTimeout(maybeInitHarvestTimerButton, 3000)
     }
   }
 }
 
-function getDataFromMonday () {
-  function wait (ms) {
-    let start = new Date().getTime()
-    let end = start
-    while (end < start + ms) {
-      end = new Date().getTime()
-    }
-  }
-  wait(150)
+function getDataFromMonday() {
+  const path = window.location.pathname;
+  const urlBase = new URL(window.location.href).origin;
 
+  const selectedProject = document.querySelector('.home-control-base-item-component.selected');
+  const projectName = selectedProject?.querySelector('.text-with-highlights > span')?.textContent || '';
 
-  const path = window.location.pathname
-  const urlBase = window.location.href.replace(path, '') || ''
+  const pulseNameElement = document.querySelector('.pulse_title h2');
+  const pulseName = pulseNameElement?.textContent || '';
 
-  const projectNameElement = document.querySelector('.home-control-base-item-component.selected .text-with-highlights > span')
-  const projectName = projectNameElement ? projectNameElement.textContent : ''
+  const pulseId = path.substring(path.lastIndexOf('/') + 1) || '';
+  const boardId = path.split('/')[2] || '';
 
-  const pulsNameElement = document.querySelector('.pulse_title h2')
-  const pulseName = pulsNameElement ? pulsNameElement.textContent : ''
-
-  const pulseId = path.substring(path.lastIndexOf('/') + 1) || ''
-  const boardId = location.pathname.split('/')[2] || ''
-  const permalink = urlBase && boardId && pulseId
-    ? `${urlBase}/${boardId}/pulses/${pulseId}` : urlBase && boardId ? `${urlBase}/${boardId}` : ''
+  const permalink = (urlBase && boardId && pulseId)
+    ? `${urlBase}/${boardId}/pulses/${pulseId}`
+    : '';
 
   if (path.includes('/pulses/')) {
-    return { projectName, pulseName, pulseId, boardId, permalink }
+    return { projectName, pulseName, pulseId, boardId, permalink };
+  } else if (path.includes('/boards/')) {
+    return { projectName, pulseName: '', pulseId: '', boardId, permalink: '' };
+  } else {
+    return {};
   }
-  else {
-    return {}
-  }
+}
+
+
+async function updateStorage() {
+  const data = getDataFromMonday();
+  const dataFromStore = await chrome.storage.sync.get('HarvestMondayIntegration');
+  Object.assign(dataFromStore, data);
+  await chrome.storage.sync.set({ HarvestMondayIntegration: dataFromStore });
 }
 
 window.addEventListener("message", function (event) {
