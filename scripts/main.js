@@ -30,7 +30,6 @@ function initMain () {
 
 function onLoad () {
   let initialLocation = window.location.href
-
   maybeAddTimerButtonToPulse()
   monitorLocationChanges()
 

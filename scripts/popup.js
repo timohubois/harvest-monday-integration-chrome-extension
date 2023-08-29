@@ -26,8 +26,6 @@ function onMessage (event) {
 }
 
 function onLoad () {
-  import('./platform.harvestapp.js')
-
   window._harvestPlatformConfig = {
     applicationName: 'MondayIntegration',
     skipStyling: true
