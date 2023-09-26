@@ -14,13 +14,13 @@ The extension itself also has an icon in the extensions section of Chrome. On mo
 
 1. Clone this repo.
 2. Run `npm i`.
-3. Run `npm dev`.
+3. Run `npm run dev`.
 
 ## Create the extension
 
 1. Clone this repo.
 2. Run `npm i`.
-3. Run `npm build`.
+3. Run `npm run build`.
 
 The extension will be bundled inside the `dist` folder.
 
