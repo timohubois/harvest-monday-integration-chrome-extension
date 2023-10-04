@@ -20,8 +20,15 @@
             "https://*/*"
           ],
           "js": [
-            "scripts/main.js",
             "scripts/popup.js"
+          ]
+        },
+        {
+          "matches": [
+            "https://*.monday.com/*"
+          ],
+          "js": [
+            "scripts/main.js"
           ]
         }
     ]

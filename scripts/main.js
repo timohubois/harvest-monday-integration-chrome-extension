@@ -1,24 +1,21 @@
-async function initMain () {
-  if (window.location.href.includes('monday.com')) {
-    import('./platform.harvestapp.js').then(() => {
-      window._harvestPlatformConfig = {
-        applicationName: 'MondayIntegration',
-        skipStyling: false
-      }
-    })
-
-    await resetStorage()
-    await updateStorage()
-
-    window.addEventListener('load', monitorLocationChanges)
-    window.addEventListener('blur', resetStorage)
-    window.addEventListener('focus', updateStorage)
-    window.addEventListener('pagehide', resetStorage)
-    window.addEventListener('beforeunload', resetStorage)
+import('./platform.harvestapp.js').then(() => {
+  window._harvestPlatformConfig = {
+    applicationName: 'MondayIntegration',
+    skipStyling: false
   }
-}
+})
 
 let initialLocation = window.location.href
+
+resetStorage()
+updateStorage()
+maybeAddTimerButtonToPulse()
+monitorLocationChanges()
+
+window.addEventListener('blur', resetStorage)
+window.addEventListener('focus', updateStorage)
+window.addEventListener('pagehide', resetStorage)
+window.addEventListener('beforeunload', resetStorage)
 
 async function monitorLocationChanges () {
   if (initialLocation !== window.location.href) {
@@ -26,7 +23,7 @@ async function monitorLocationChanges () {
     await updateStorage()
     await maybeAddTimerButtonToPulse()
   }
-  setTimeout(monitorLocationChanges, 2000)
+  setTimeout(monitorLocationChanges, 1000)
 }
 
 async function maybeAddTimerButtonToPulse () {
@@ -181,9 +178,7 @@ async function maybeAddTimerButtonToPulse () {
       event.element = harvestTimerObj
       harvestMessaging.dispatchEvent(event)
     }
-  } catch (e) {
-    setTimeout(maybeAddTimerButtonToPulse, 3000)
-  }
+  } catch (e) {}
 }
 
 async function getDataFromMonday () {
@@ -226,5 +221,3 @@ async function resetStorage () {
     chrome.storage.sync.set({ HarvestMondayIntegration: { projectName: 'Internal' } })
   } catch (e) { }
 }
-
-initMain()
