@@ -37,7 +37,7 @@ function onLoad () {
     if (initialLocation !== window.location.href) {
       initialLocation = window.location.href
       await updateStorage()
-      maybeAddTimerButtonToPulse()
+      await maybeAddTimerButtonToPulse()
     }
     setTimeout(monitorLocationChanges, 1000)
   }
@@ -197,8 +197,8 @@ function onLoad () {
       }
     }
     catch (e) {
-      console.warn(e)
-      console.warn('Retrying to init Harvest Timer Button in 3 seconds...')
+      //console.warn(e)
+      //console.warn('Retrying to init Harvest Timer Button in 3 seconds...')
       setTimeout(maybeAddTimerButtonToPulse, 3000)
     }
   }
