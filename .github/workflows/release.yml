@@ -12,3 +12,5 @@ jobs:
         with:
           release-type: node
           package-name: add-harvest-button-to-monday-pulse-for-chrome
+          extra-files: |
+            manifest.json
