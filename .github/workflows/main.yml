@@ -1,0 +1,25 @@
+name: Commit Checks
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js v18
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+    - uses: actions/cache@v3
+      with:
+        path: theme/node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('theme/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+    - name: Install npm
+      run: |
+        npm ci
+    - name: Run build
+      run: |
+        npm run build
