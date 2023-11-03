@@ -1,7 +1,6 @@
 initPopup()
 
 function initPopup () {
-
   window.addEventListener('load', onLoad)
   window.addEventListener('message', onMessage)
 
@@ -47,27 +46,16 @@ async function initIframe (iframe) {
       pulseName,
       pulseId,
       boardId,
-      permalink,
-      external_reference
+      permalink
     } = dataFromStore.HarvestMondayIntegration || {}
 
-    const id = external_reference?.id
-    const group_id = external_reference?.group_id
-
-    const isTimerCurrentlyRunning = Boolean(id && group_id)
-
     const url = new URL('https://platform.harvestapp.com/platform/timer')
-    if (!isTimerCurrentlyRunning) {
-      url.searchParams.append('external_item_id', pulseId || '')
-      url.searchParams.append('external_item_name', pulseName || '')
-      url.searchParams.append('external_group_id', boardId || '')
-      url.searchParams.append('permalink', permalink || '')
-      url.searchParams.append('default_project_name', projectName || '')
-    } else {
-      url.searchParams.append('external_item_id', id || '')
-      url.searchParams.append('external_item_name', pulseName || '')
-      url.searchParams.append('external_group_id', group_id || '')
-    }
+    if (pulseId) url.searchParams.append('external_item_id', pulseId)
+    if (pulseName) url.searchParams.append('external_item_name', pulseName)
+    if (boardId) url.searchParams.append('external_group_id', boardId)
+    if (permalink) url.searchParams.append('permalink', permalink)
+    if (projectName) url.searchParams.append('default_project_name', projectName)
+
     url.searchParams.append('closable', 'false')
 
     for (const [key, value] of url.searchParams.entries()) {
@@ -89,3 +77,10 @@ async function initIframe (iframe) {
     console.error('Error setting up iframe:', error)
   }
 }
+
+// Sync storage changes to popup.
+chrome.storage.onChanged.addListener(function (changes, areaName) {
+  if (areaName === 'sync' && changes.HarvestMondayIntegration) {
+    onLoad()
+  }
+})
