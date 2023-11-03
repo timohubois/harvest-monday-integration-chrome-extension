@@ -12,7 +12,6 @@ updateStorage()
 maybeAddTimerButtonToPulse()
 monitorLocationChanges()
 
-window.addEventListener('blur', resetStorage)
 window.addEventListener('focus', updateStorage)
 window.addEventListener('pagehide', resetStorage)
 window.addEventListener('beforeunload', resetStorage)
@@ -23,7 +22,7 @@ async function monitorLocationChanges () {
     await updateStorage()
     await maybeAddTimerButtonToPulse()
   }
-  setTimeout(monitorLocationChanges, 1000)
+  setTimeout(monitorLocationChanges, 250)
 }
 
 async function maybeAddTimerButtonToPulse () {
@@ -33,24 +32,14 @@ async function maybeAddTimerButtonToPulse () {
     if (path.includes('/pulses/')) {
       document.querySelectorAll('.harvest-timer').forEach(e => e.remove())
       await updateStorage()
-      const data = await chrome.storage.sync.get('HarvestMondayIntegration')
-      const {
-        projectName,
-        pulseName,
-        pulseId,
-        boardId,
-        permalink
-      } = data.HarvestMondayIntegration || {}
 
-      const timerButtonHtml = `
-        <div class='harvest-timer' id='harvest-timer-obj'
-          data-default='{"project_name": "${projectName}" }'
-          data-item='{"id":"${pulseId}", "name": "${pulseName}"}'
-          data-group='{"id": "${boardId}" }'
-          data-permalink='${permalink}'
-          >
-        </div>`
-
+      let timerButton = document.createElement('div')
+      timerButton.setAttribute('id', 'harvest-timer-obj')
+      timerButton.classList.add('harvest-timer')
+      timerButton = await addTimerButtonAttributes(timerButton)
+      timerButton.addEventListener('mouseover', function (event) {
+        onTimerButtonMouseOver(event)
+      })
       // Overwrites the default Harvest CSS styles, will also be used as fallback if Harvest CSS fails to load.
       const styles = `
         <style>
@@ -169,7 +158,7 @@ async function maybeAddTimerButtonToPulse () {
         return
       }
       pulseActionsWrapper.insertAdjacentHTML('beforeend', styles)
-      pulseActionsWrapper.insertAdjacentHTML('beforeend', timerButtonHtml)
+      pulseActionsWrapper.appendChild(timerButton)
 
       // Trigger Harvest event to add the Timer button.
       let harvestMessaging = document.getElementById('harvest-messaging')
@@ -178,7 +167,90 @@ async function maybeAddTimerButtonToPulse () {
       event.element = harvestTimerObj
       harvestMessaging.dispatchEvent(event)
     }
-  } catch (e) {}
+  } catch (e) { }
+}
+
+async function onTimerButtonMouseOver (event) {
+  const button = event.target
+  await updateStorage()
+
+  const data = await chrome.storage.sync.get('HarvestMondayIntegration')
+  const {
+    projectName,
+    pulseName,
+    pulseId,
+    boardId,
+    permalink
+  } = data.HarvestMondayIntegration || {}
+
+  const buttonDataDefault = JSON.parse(button.getAttribute('data-default')) || {}
+  if (buttonDataDefault.project_name !== projectName) {
+    buttonDataDefault.project_name = projectName
+    button.setAttribute('data-default', JSON.stringify(buttonDataDefault))
+  }
+
+  const buttonDataItem = JSON.parse(button.getAttribute('data-item')) || {}
+  if (buttonDataItem.id !== pulseId || buttonDataItem.name !== pulseName) {
+    buttonDataItem.id = pulseId
+    buttonDataItem.name = pulseName
+    button.setAttribute('data-item', JSON.stringify(buttonDataItem))
+  }
+
+  const buttonDataGroup = JSON.parse(button.getAttribute('data-group')) || {}
+  if (buttonDataGroup.id !== boardId) {
+    buttonDataGroup.id = boardId
+    button.setAttribute('data-group', JSON.stringify(buttonDataGroup))
+  }
+
+  const dataPermalink = button.getAttribute('data-permalink')
+  if (dataPermalink !== permalink) {
+    button.setAttribute('data-permalink', permalink)
+  }
+}
+
+function replacerEscapeHtml (key, value) {
+  if (typeof value === 'string') {
+    return value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;")
+  }
+  return value
+}
+
+async function addTimerButtonAttributes (element, returnElement = true) {
+  const data = await chrome.storage.sync.get('HarvestMondayIntegration')
+  const {
+    projectName,
+    pulseName,
+    pulseId,
+    boardId,
+    permalink
+  } = data.HarvestMondayIntegration || {}
+
+  const dataDefaultJson = JSON.stringify({
+    project_name: projectName
+  }, replacerEscapeHtml)
+
+  const dataItemJson = JSON.stringify({
+    id: pulseId,
+    name: pulseName
+  }, replacerEscapeHtml)
+
+  const dataGroupJson = JSON.stringify({
+    id: boardId
+  }, replacerEscapeHtml)
+
+  element.setAttribute('data-default', dataDefaultJson)
+  element.setAttribute('data-item', dataItemJson)
+  element.setAttribute('data-group', dataGroupJson)
+  element.setAttribute('data-permalink', permalink)
+
+  if (returnElement) {
+    return element
+  }
 }
 
 async function getDataFromMonday () {
