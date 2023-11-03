@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: google-github-actions/release-please-action@v3
+        id: release
         with:
           release-type: node
           package-name: add-harvest-button-to-monday-pulse-for-chrome
@@ -16,12 +17,12 @@ jobs:
             manifest.json
 
       - name: Use Node.js v18
-        if: ${{ steps.release.outputs.release_created }}
+        if: ${{ steps.release.outputs.release_created == true }}
         uses: actions/setup-node@v3
         with:
           node-version: 18
       - uses: actions/cache@v3
-        if: ${{ steps.release.outputs.release_created }}
+        if: ${{ steps.release.outputs.release_created == true }}
         with:
           path: ./node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('./package-lock.json') }}
