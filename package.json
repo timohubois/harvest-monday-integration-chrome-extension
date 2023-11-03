@@ -1,5 +1,5 @@
 {
-  "name": "add-harvest-button-to-monday-pulse-for-chrome",
+  "name": "harvest-monday-integration-chrome-extension",
   "private": true,
   "version": "0.0.0",
   "type": "module",
