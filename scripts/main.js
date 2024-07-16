@@ -154,7 +154,7 @@ async function maybeAddTimerButtonToPulse () {
 
       const pulseActionsWrapper = document.querySelector('.pulse_actions_wrapper')
       if (!pulseActionsWrapper) {
-        setTimeout(await maybeAddTimerButtonToPulse(), 3000)
+        setTimeout(await maybeAddTimerButtonToPulse, 3000)
         return
       }
       pulseActionsWrapper.insertAdjacentHTML('beforeend', styles)
@@ -253,30 +253,50 @@ async function addTimerButtonAttributes (element, returnElement = true) {
   }
 }
 
-async function getDataFromMonday () {
-  const path = window.location.pathname
-  const urlBase = new URL(window.location.href).origin
+async function getDataFromMonday() {
+  const path = window.location.pathname;
+  const urlBase = new URL(window.location.href).origin;
 
-  const selectedProject = document.querySelector('.home-control-base-item-component.selected')
-  const projectName = selectedProject?.querySelector('.text-with-highlights > span')?.textContent || ''
+  // Initialize default values
+  let projectName = '';
+  let pulseName = 'Miscellaneous > REPLACE_THIS_WITH_A_DESCRIPTION';
+  let pulseId = 'miscellaneous';
+  let boardId = '';
+  let permalink = '';
 
-  const pulseNameElement = document.querySelector('.pulse_title h2')
-  const pulseName = pulseNameElement?.textContent || ''
+  // Extract boardId and pulseId from path
+  const pathRegex = /\/boards\/(\d+)\/?.*\/pulses\/(\d+)/;
+  const pathMatch = path.match(pathRegex);
 
-  const pulseId = path.substring(path.lastIndexOf('/') + 1) || ''
-  const boardId = path.split('/')[2] || ''
+  if (pathMatch) {
+    boardId = pathMatch[1];
+    pulseId = pathMatch[2];
 
-  const permalink = (urlBase && boardId && pulseId)
-    ? `${urlBase}/boards/${boardId}/pulses/${pulseId}`
-    : (urlBase && boardId && pulseId) ? `${urlBase}/boards/${boardId}` : ''
+    // Fetch projectName
+    const selectedProjectElement = document.querySelector('#mf-header h2');
+    projectName = selectedProjectElement?.textContent || '';
 
-  if (path.includes('/pulses/')) {
-    return { projectName, pulseName, pulseId, boardId, permalink }
-  } else if (path.includes('/boards/')) {
-    return { projectName, pulseName: 'Miscellaneous > REPLACE_THIS_WITH_A_DESCRIPTION', pulseId: 'miscellaneous', boardId, permalink }
-  } else {
-    return {}
+    // Fetch pulseName
+    const pulseNameElement = document.querySelector('.pulse_title h2');
+    pulseName = pulseNameElement?.textContent || '';
+
+    // Construct permalink
+    if (boardId) {
+      if (pulseId) {
+        permalink = `${urlBase}/boards/${boardId}/pulses/${pulseId}`;
+      } else {
+        permalink = `${urlBase}/boards/${boardId}`;
+      }
+    }
   }
+
+  return {
+    projectName,
+    pulseName,
+    pulseId,
+    boardId,
+    permalink
+  };
 }
 
 async function updateStorage () {
