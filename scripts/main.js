@@ -257,15 +257,15 @@ async function getDataFromMonday() {
   const path = window.location.pathname;
   const urlBase = new URL(window.location.href).origin;
 
-  // Initialize default values
+  // Initialize variables
   let projectName = '';
-  let pulseName = 'Miscellaneous > REPLACE_THIS_WITH_A_DESCRIPTION';
-  let pulseId = 'miscellaneous';
+  let pulseName = '';
+  let pulseId = '';
   let boardId = '';
   let permalink = '';
 
   // Extract boardId and pulseId from path
-  const pathRegex = /\/boards\/(\d+)\/?.*\/pulses\/(\d+)/;
+  const pathRegex = /\/boards\/(\d+)(?:\/?.*\/pulses\/(\d+))?/;
   const pathMatch = path.match(pathRegex);
 
   if (pathMatch) {
@@ -278,13 +278,14 @@ async function getDataFromMonday() {
 
     // Fetch pulseName
     const pulseNameElement = document.querySelector('.pulse_title h2');
-    pulseName = pulseNameElement?.textContent || '';
+    pulseName = pulseNameElement?.textContent || 'Miscellaneous > REPLACE_THIS_WITH_A_DESCRIPTION'; // Harvest requires a default value
 
     // Construct permalink
     if (boardId) {
       if (pulseId) {
         permalink = `${urlBase}/boards/${boardId}/pulses/${pulseId}`;
       } else {
+        pulseId = 'miscellaneous'; // Harvest requires a default value
         permalink = `${urlBase}/boards/${boardId}`;
       }
     }
