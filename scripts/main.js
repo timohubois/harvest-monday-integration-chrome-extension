@@ -266,7 +266,7 @@ async function getDataFromMonday() {
 
   // Extract boardId and pulseId from path
   const pathRegex = /\/boards\/(\d+)(?:\/?.*\/pulses\/(\d+))?/;
-  const pathMatch = path.match(pathRegex);
+  const pathMatch = pathRegex.exec(path);
 
   if (pathMatch) {
     boardId = pathMatch[1];
