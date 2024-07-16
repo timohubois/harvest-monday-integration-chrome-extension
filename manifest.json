@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Add Harvest Button to monday.com",
     "description": "Adds a Harvest button to pulses on monday.com",
-    "version": "0.0.0.1",
+    "version": "0.0.0.2",
     "author": "Timo Hubois",
     "icons": {
       "16": "public/icon16.png",
