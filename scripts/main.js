@@ -165,7 +165,7 @@ async function maybeAddTimerButtonToPulse () {
 
       const pulseActionsWrapper = document.querySelector('.pulse_actions_wrapper')
       if (!pulseActionsWrapper) {
-        setTimeout(await maybeAddTimerButtonToPulse(), 3000)
+        setTimeout(await maybeAddTimerButtonToPulse, 3000)
         return
       }
       pulseActionsWrapper.insertAdjacentHTML('beforeend', styles)
