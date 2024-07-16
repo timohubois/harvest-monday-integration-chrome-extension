@@ -201,7 +201,7 @@ async function getDataFromMonday() {
     pulseId = pathMatch[2];
 
     // Fetch projectName
-    const selectedProjectElement = document.querySelector('.home-control-base-item-component.selected .text-with-highlights > span');
+    const selectedProjectElement = document.querySelector('#mf-header h2');
     projectName = selectedProjectElement?.textContent || '';
 
     // Fetch pulseName
