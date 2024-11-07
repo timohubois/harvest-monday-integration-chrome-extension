@@ -1,35 +1,41 @@
 {
-    "manifest_version": 3,
-    "name": "Add Harvest Button to monday.com",
-    "description": "Adds a Harvest button to pulses on monday.com",
-    "version": "0.0.0.2",
-    "author": "Timo Hubois",
-    "icons": {
-      "16": "public/icon16.png",
-      "48": "public/icon48.png",
-      "128": "public/icon128.png"
+  "manifest_version": 3,
+  "name": "Add Harvest Button to monday.com",
+  "description": "Adds a Harvest button to pulses on monday.com",
+  "version": "0.0.0.3",
+  "author": "Timo Hubois",
+  "icons": {
+    "16": "public/icon16.png",
+    "48": "public/icon48.png",
+    "128": "public/icon128.png"
+  },
+  "permissions": [
+    "tabs",
+    "storage"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Harvest"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*/*"
+      ],
+      "js": [
+        "scripts/popup.js"
+      ]
     },
-    "permissions" : ["tabs", "storage"],
-    "action": {
-      "default_popup": "popup.html",
-      "default_title": "Harvest"
-    },
-    "content_scripts": [
-        {
-          "matches": [
-            "https://*/*"
-          ],
-          "js": [
-            "scripts/popup.js"
-          ]
-        },
-        {
-          "matches": [
-            "https://*.monday.com/*"
-          ],
-          "js": [
-            "scripts/main.js"
-          ]
-        }
-    ]
+    {
+      "matches": [
+        "https://*.monday.com/*"
+      ],
+      "js": [
+        "scripts/main.js"
+      ]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
   }
+}
