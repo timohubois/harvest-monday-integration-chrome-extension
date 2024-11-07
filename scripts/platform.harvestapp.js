@@ -1,9 +1,360 @@
-// A copy from the original file from this url: https://platform.harvestapp.com/assets/platform.js
-// Further Details can be found here: https://github.com/harvesthq/platform
 (() => {
-  const h=document.createElement("iframe");h.id="harvest-iframe";const u=document.createElement("div");u.className="harvest-overlay";u.appendChild(h);u.addEventListener("click",y);document.addEventListener("keyup",({key:t})=>{t==="Escape"&&y()});function j(t){h.src=t,document.body.appendChild(u)}function y(){var t;(t=u.parentNode)==null||t.removeChild(u)}function L(t){h.style.height=`${t}px`}const I=`.harvest-timer.styled{-webkit-font-smoothing:antialiased;background-image:linear-gradient(#fff,#eee);border:1px solid #bbb;border-radius:2px;color:#222;cursor:pointer;display:inline-block;font:inherit;font-size:0;height:12px;line-height:1;margin:0;padding:3px;position:relative;vertical-align:top;width:12px}.harvest-timer.styled:hover{background-image:linear-gradient(#f8f8f8,#e8e8e8)}.harvest-timer.styled:active{background:#eee;box-shadow:inset 0 1px 4px #0000001a}.harvest-timer.styled:after{background:url("data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='16'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='currentColor'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%20aria-label='Clock%20icon'%3e%3ccircle%20cx='12'%20cy='12'%20r='10'%20/%3e%3cpolyline%20points='12%206%2012%2012%2016%2014'%20/%3e%3c/svg%3e") 50% 50% no-repeat;content:"";display:inline-block;font:inherit;height:100%;left:0;margin:0;padding:0;position:absolute;top:0;width:100%}.harvest-timer.styled.running{background-image:linear-gradient(#53b2fc,#1385e5);border-color:#075fa9;color:#fff}.harvest-timer.styled.running:hover{background-image:linear-gradient(#49a4fd,#0e7add)}.harvest-timer.styled.running:active{background:#1385e5;box-shadow:inset 0 1px 5px #0003}#harvest-iframe{background:#fff;border:none;border-radius:6px;box-shadow:0 6px 12px #0003,0 0 0 1px #0000001a;height:300px;left:50%;margin:0 0 0 -250px;overflow:hidden;padding:0;position:absolute;top:0;transition:height .15s;width:500px}@media (min-height: 400px){#harvest-iframe{top:10%}}@media (min-height: 550px){#harvest-iframe{top:20%}}.harvest-overlay{background:#0009;height:100%;left:0;opacity:1;overflow:scroll;position:fixed;top:0;width:100%;z-index:calc(infinity)}`,A="https",b=`${A}://platform.harvestapp.com`;let v,o=document.getElementById("harvest-messaging");if(!document.getElementById("harvest-worker")){let t=document.createElement("iframe");t.hidden=!0,t.id="harvest-worker",t.src=`${b}/platform/worker`,document.body.appendChild(t)}o||(o=document.createElement("div"),o.id="harvest-messaging",o.hidden=!0,document.body.appendChild(o));let H=function(t){let e=[];for(let i in t){let r=t[i];r!=null&&e.push(`${i}=${encodeURIComponent(r)}`)}return e.join("&")},g=function(){return window._harvestPlatformConfig?window._harvestPlatformConfig:JSON.parse(document.querySelector("script[data-platform-config]").dataset.platformConfig)},_=function(t){let e={},i=["account","item","group","default","skip-styling"];for(let r=0;r<i.length;r++){let n=i[r];t.getAttribute(`data-${n}`)?e[n]=x(t,n):e[n]=null}return e.group==null&&(e.group=x(t,"project")),e.permalink=t.getAttribute("data-permalink"),e},x=function(t,e){let i;try{i=JSON.parse(t.getAttribute(`data-${e}`))}catch{}return(i==null?void 0:i.id)!=null&&(i.id=""+i.id),i},w=function(t){var l,s,c,m;v=t;let e=((l=t==null?void 0:t.group)==null?void 0:l.id)||void 0,i=((s=t==null?void 0:t.item)==null?void 0:s.id)||void 0,r=document.querySelectorAll(".harvest-timer"),n=[];for(let f=0;f<r.length;f++){let d=r[f],k=_(d),E=((c=k.group)==null?void 0:c.id)||void 0,C=((m=k.item)==null?void 0:m.id)||void 0;if(v==null||E!==e||C!==i){d.classList.remove("running");let p=[];for(let a=0;a<d.children.length;a++){let P=d.children[a];p.push(P.classList.remove("running"))}n.push(p)}else{d.classList.add("running");let p=[];for(let a=0;a<d.children.length;a++)child=d.children[a],p.push(child.classList.add("running"));n.push(p)}}return n},$=function(){return w(null)},N=function(t,e){return t!=null&&e!=null&&(e.account!=null&&(t=t.replace("%ACCOUNT_ID%",e.account.id)),e.group!=null&&(t=t.replace("%PROJECT_ID%",e.group.id)),e.group!=null&&(t=t.replace("%GROUP_ID%",e.group.id)),e.item!=null&&(t=t.replace("%ITEM_ID%",e.item.id))),t},T=function(t,e){return window.jQuery!=null?window.jQuery(o).bind(t,e):o.addEventListener(t,e)};window.addEventListener("message",function(t){if(t.origin!==b||t.data==null)return;const{type:e,value:i}=t.data;switch(e){case"frame:close":return y();case"frame:resize":return L(i);case"timer:started":const{id:r,group_id:n}=i.external_reference;return w({group:{id:n},item:{id:r}});case"timer:stopped":return $()}});let R=class{constructor({stylesheet:e}){let i,r;this.addTimers=this.addTimers.bind(this),this.findTimers=this.findTimers.bind(this),this.stylesheet=e,r=document.createElement("style"),document.head.appendChild(r),r.appendChild(document.createTextNode(this.stylesheet)),T("harvest-event:timers:add",this.addTimers),T("harvest-event:timers:chrome:add",this.findTimers),this.findTimers(),o.setAttribute("data-ready",!0),i=document.createEvent("CustomEvent"),i.initCustomEvent("harvest-event:ready",!0,!0,{}),(document.body||o).dispatchEvent(i)}addTimers(e){let i,r,n,l;if(i=e.element||((r=e.originalEvent)!=null&&(n=r.detail)!=null?n.element:void 0)||((l=e.detail)!=null?l.element:void 0),(i!=null?i.jquery:void 0)!=null&&(i=i.get(0)),i)return this.findTimer(i)}findTimers(){let e,i,r,n,l,s;for(s=".harvest-timer:not([data-listening])",i=document.querySelectorAll(s),l=[],r=0,n=i.length;r<n;r++)e=i[r],l.push(this.findTimer(e));return l}findTimer(e){let i=e.getAttribute("data-skip-styling");return g().skipStyling||e.classList.contains("styled")||i!=null&&i!==!1&&i!=="false"||e.classList.add("styled"),e.addEventListener("click",n=>(n.stopPropagation(),this.openIframe(_(e)))),w(v),e.setAttribute("data-listening",!0)}openIframe(e){let i,r,n,l,s,c,m,f={app_name:g().applicationName,service:e.service||window.location.hostname,permalink:e.permalink||N(g().permalink,e),external_account_id:(i=e.account)!=null?i.id:void 0,external_group_id:(r=e.group)!=null?r.id:void 0,external_group_name:(n=e.group)!=null?n.name:void 0,external_item_id:(l=e.item)!=null?l.id:void 0,external_item_name:(s=e.item)!=null?s.name:void 0,default_project_code:(c=e.default)!=null?c.project_code:void 0,default_project_name:(m=e.default)!=null?m.project_name:void 0};return j(`${b}/platform/timer?${H(f)}`)}};window.postMessage==null?console.warn(`Harvest Platform is disabled.
+  const iframe = document.createElement("iframe");
+  iframe.id = "harvest-iframe";
+  const overlay = document.createElement("div");
+  overlay.className = "harvest-overlay";
+  overlay.appendChild(iframe);
+  overlay.addEventListener("click", close);
+  document.addEventListener("keyup", ({
+    key
+  }) => {
+    if (key === "Escape")
+      close();
+  });
+  function open(url) {
+    iframe.src = url;
+    document.body.appendChild(overlay);
+  }
+  function close() {
+    var _a;
+    (_a = overlay.parentNode) == null ? void 0 : _a.removeChild(overlay);
+  }
+  function adjustHeight(height) {
+    iframe.style.height = `${height}px`;
+  }
+  const stylesheet = `.harvest-timer.styled {
+    -webkit-font-smoothing: antialiased;
+    background-image: linear-gradient(#fff, #eee);
+    border: 1px solid #bbb;
+    border-radius: 2px;
+    color: #222;
+    cursor: pointer;
+    display: inline-block;
+    font: inherit;
+    font-size: 0;
+    height: 12px;
+    line-height: 1;
+    margin: 0;
+    padding: 3px;
+    position: relative;
+    vertical-align: top;
+    width: 12px;
+  }
+  .harvest-timer.styled:hover {
+    background-image: linear-gradient(#f8f8f8, #e8e8e8);
+  }
+  .harvest-timer.styled:active {
+    background: #eee;
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.1);
+  }
+  .harvest-timer.styled::after {
+    background: url("data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='16'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='currentColor'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%20aria-label='Clock%20icon'%3e%3ccircle%20cx='12'%20cy='12'%20r='10'%20/%3e%3cpolyline%20points='12%206%2012%2012%2016%2014'%20/%3e%3c/svg%3e") 50% 50% no-repeat;
+    content: "";
+    display: inline-block;
+    font: inherit;
+    height: 100%;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
+  .harvest-timer.styled.running {
+    background-image: linear-gradient(#53b2fc, #1385e5);
+    border-color: #075fa9;
+    color: #fff;
+  }
+  .harvest-timer.styled.running:hover {
+    background-image: linear-gradient(#49a4fd, #0e7add);
+  }
+  .harvest-timer.styled.running:active {
+    background: #1385e5;
+    box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.2);
+  }
+
+  #harvest-iframe {
+    background: white;
+    border: none;
+    border-radius: 6px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.1);
+    height: 300px;
+    left: 50%;
+    margin: 0;
+    margin-left: -250px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    transition: height 150ms;
+    width: 500px;
+  }
+  @media (min-height: 400px) {
+    #harvest-iframe {
+      top: 10%;
+    }
+  }
+  @media (min-height: 550px) {
+    #harvest-iframe {
+      top: 20%;
+    }
+  }
+
+  .harvest-overlay {
+    background: rgba(0, 0, 0, 0.6);
+    height: 100%;
+    left: 0;
+    opacity: 1;
+    overflow: scroll;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: calc(infinity);
+  }`;
+  const scheme = "https";
+  const baseUrl = `${scheme}://${"platform.harvestapp.com"}`;
+  let lastRunningTimerData;
+  let xdm = document.getElementById("harvest-messaging");
+  if (!document.getElementById("harvest-worker")) {
+    let worker = document.createElement("iframe");
+    worker.hidden = true;
+    worker.id = "harvest-worker";
+    worker.src = `${baseUrl}/platform/worker`;
+    document.body.appendChild(worker);
+  }
+  if (!xdm) {
+    xdm = document.createElement("div");
+    xdm.id = "harvest-messaging";
+    xdm.hidden = true;
+    document.body.appendChild(xdm);
+  }
+  let param = function(params) {
+    let results = [];
+    for (let name in params) {
+      let value = params[name];
+      if (value != null) {
+        results.push(`${name}=${encodeURIComponent(value)}`);
+      }
+    }
+    return results.join("&");
+  };
+  let config = function() {
+    if (window._harvestPlatformConfig) {
+      return window._harvestPlatformConfig;
+    } else {
+      return JSON.parse(document.querySelector("script[data-platform-config]").dataset.platformConfig);
+    }
+  };
+  let getData = function(el) {
+    let data = {};
+    let attributes = ["account", "item", "group", "default", "skip-styling"];
+    for (let i = 0; i < attributes.length; i++) {
+      let key = attributes[i];
+      if (el.getAttribute(`data-${key}`)) {
+        data[key] = getValue(el, key);
+      } else {
+        data[key] = null;
+      }
+    }
+    if (data.group == null) {
+      data.group = getValue(el, "project");
+    }
+    data.permalink = el.getAttribute("data-permalink");
+    return data;
+  };
+  let getValue = function(el, key) {
+    let value;
+    try {
+      value = JSON.parse(el.getAttribute(`data-${key}`));
+    } catch (error) {
+    }
+    if ((value == null ? void 0 : value.id) != null) {
+      value.id = "" + value.id;
+    }
+    return value;
+  };
+  let setTimer = function(data) {
+    var _a, _b, _c, _d;
+    lastRunningTimerData = data;
+    let lastRunningTimerGroup = ((_a = data == null ? void 0 : data.group) == null ? void 0 : _a.id) || void 0;
+    let lastRunningTimerItem = ((_b = data == null ? void 0 : data.item) == null ? void 0 : _b.id) || void 0;
+    let harvestTimers = document.querySelectorAll(".harvest-timer");
+    let results = [];
+    for (let i = 0; i < harvestTimers.length; i++) {
+      let timer = harvestTimers[i];
+      let timerData = getData(timer);
+      let group = ((_c = timerData.group) == null ? void 0 : _c.id) || void 0;
+      let item = ((_d = timerData.item) == null ? void 0 : _d.id) || void 0;
+      if (lastRunningTimerData == null || group !== lastRunningTimerGroup || item !== lastRunningTimerItem) {
+        timer.classList.remove("running");
+        let removed = [];
+        for (let j = 0; j < timer.children.length; j++) {
+          let child = timer.children[j];
+          removed.push(child.classList.remove("running"));
+        }
+        results.push(removed);
+      } else {
+        timer.classList.add("running");
+        let added = [];
+        for (let j = 0; j < timer.children.length; j++) {
+          let child = timer.children[j];
+          added.push(child.classList.add("running"));
+        }
+        results.push(added);
+      }
+    }
+    return results;
+  };
+  let stopTimer = function() {
+    return setTimer(null);
+  };
+  let createPermalink = function(template, data) {
+    if (template != null && data != null) {
+      if (data.account != null) {
+        template = template.replace("%ACCOUNT_ID%", data.account.id);
+      }
+      if (data.group != null) {
+        template = template.replace("%PROJECT_ID%", data.group.id);
+      }
+      if (data.group != null) {
+        template = template.replace("%GROUP_ID%", data.group.id);
+      }
+      if (data.item != null) {
+        template = template.replace("%ITEM_ID%", data.item.id);
+      }
+    }
+    return template;
+  };
+  let listenForEvent = function(name, handler) {
+    if (window.jQuery != null) {
+      return window.jQuery(xdm).bind(name, handler);
+    } else {
+      return xdm.addEventListener(name, handler);
+    }
+  };
+  window.addEventListener("message", function(evt) {
+    if (evt.origin !== baseUrl) {
+      return;
+    }
+    if (evt.data == null) {
+      return;
+    }
+    const {
+      type,
+      value
+    } = evt.data;
+    switch (type) {
+      case "frame:close":
+        return close();
+      case "frame:resize":
+        return adjustHeight(value);
+      case "timer:started":
+        const {
+          id,
+          group_id
+        } = value.external_reference;
+        return setTimer({
+          group: {
+            id: group_id
+          },
+          item: {
+            id
+          }
+        });
+      case "timer:stopped":
+        return stopTimer();
+    }
+  });
+  let HarvestPlatform = class HarvestPlatform2 {
+    constructor({
+      stylesheet: stylesheet2
+    }) {
+      let event, styleNode;
+      this.addTimers = this.addTimers.bind(this);
+      this.findTimers = this.findTimers.bind(this);
+      this.stylesheet = stylesheet2;
+      styleNode = document.createElement("style");
+      document.head.appendChild(styleNode);
+      styleNode.appendChild(document.createTextNode(this.stylesheet));
+      listenForEvent("harvest-event:timers:add", this.addTimers);
+      listenForEvent("harvest-event:timers:chrome:add", this.findTimers);
+      this.findTimers();
+      xdm.setAttribute("data-ready", true);
+      event = document.createEvent("CustomEvent");
+      event.initCustomEvent("harvest-event:ready", true, true, {});
+      (document.body || xdm).dispatchEvent(event);
+    }
+    addTimers(e) {
+      let element, ref, ref1, ref2;
+      element = e.element || ((ref = e.originalEvent) != null ? (ref1 = ref.detail) != null ? ref1.element : void 0 : void 0) || ((ref2 = e.detail) != null ? ref2.element : void 0);
+      if ((element != null ? element.jquery : void 0) != null) {
+        element = element.get(0);
+      }
+      if (element) {
+        return this.findTimer(element);
+      }
+    }
+    findTimers() {
+      let element, elements, i, len, results, selector;
+      selector = ".harvest-timer:not([data-listening])";
+      elements = document.querySelectorAll(selector);
+      results = [];
+      for (i = 0, len = elements.length; i < len; i++) {
+        element = elements[i];
+        results.push(this.findTimer(element));
+      }
+      return results;
+    }
+    // Find the timer associated with the given element
+    // element - HTMLElement representing a timer
+    findTimer(element) {
+      let skipAttr = element.getAttribute("data-skip-styling");
+      let skipStyling = config().skipStyling || element.classList.contains("styled") || skipAttr != null && skipAttr !== false && skipAttr !== "false";
+      if (!skipStyling) {
+        element.classList.add("styled");
+      }
+      element.addEventListener("click", (e) => {
+        e.stopPropagation();
+        return this.openIframe(getData(element));
+      });
+      setTimer(lastRunningTimerData);
+      return element.setAttribute("data-listening", true);
+    }
+    // Open a timer dialog for the given timer and pass the given timer data
+    // timer - HTMLElement representing the harvest-timer
+    // data - Object containing the timer data
+    openIframe(data) {
+      let ref, ref1, ref2, ref3, ref4, ref5, ref6;
+      let getParams = {
+        app_name: config().applicationName,
+        service: data.service || window.location.hostname,
+        permalink: data.permalink || createPermalink(config().permalink, data),
+        external_account_id: (ref = data.account) != null ? ref.id : void 0,
+        external_group_id: (ref1 = data.group) != null ? ref1.id : void 0,
+        external_group_name: (ref2 = data.group) != null ? ref2.name : void 0,
+        external_item_id: (ref3 = data.item) != null ? ref3.id : void 0,
+        external_item_name: (ref4 = data.item) != null ? ref4.name : void 0,
+        default_project_code: (ref5 = data.default) != null ? ref5.project_code : void 0,
+        default_project_name: (ref6 = data.default) != null ? ref6.project_name : void 0
+      };
+      return open(`${baseUrl}/platform/timer?${param(getParams)}`);
+    }
+  };
+  if (window.postMessage == null) {
+    console.warn(`Harvest Platform is disabled.
   To start and stop timers, cross-domain messaging must be supported
-  by your browser.`):!window.XMLHttpRequest||!("withCredentials"in new XMLHttpRequest)?console.warn(`Harvest Platform is disabled.
+  by your browser.`);
+  } else if (!window.XMLHttpRequest || !("withCredentials" in new XMLHttpRequest())) {
+    console.warn(`Harvest Platform is disabled.
   To check for running timers, xhr requests with credentials must be
-  supported by your browser.`):self.HarvestPlatform!=null?self.HarvestPlatform.findTimers():self.HarvestPlatform=new R({stylesheet:I});
-})()
+  supported by your browser.`);
+  } else if (self.HarvestPlatform != null) {
+    self.HarvestPlatform.findTimers();
+  } else {
+    self.HarvestPlatform = new HarvestPlatform({
+      stylesheet
+    });
+  }
+  //# sourceMappingURL=platform.js.map
+  })()
