@@ -45,9 +45,9 @@ async function maybeAddTimerButtonToPulse () {
         <style>
         .harvest-timer {
           -webkit-font-smoothing: antialiased;
-          background-image: linear-gradient(#fff, #eee);
-          border: 1px solid #bbb;
-          border-radius: 2px;
+          background: var(--primary-background-color);
+          border: 0;
+          border-radius: 4px;
           color: var(--primary-text-color) !important;
           cursor: pointer;
           display: grid !important;
@@ -55,7 +55,8 @@ async function maybeAddTimerButtonToPulse () {
           font-size: 0;
           height: 30px !important;
           line-height: 1;
-          margin-inline: auto 8px;
+          margin-block-end: 8px;
+          margin-inline: auto 10px;
           padding: 3px;
           place-content: center !important;
           place-items: center !important;
@@ -64,7 +65,7 @@ async function maybeAddTimerButtonToPulse () {
         }
 
         .harvest-timer:hover {
-          background-image: linear-gradient(#f8f8f8, #e8e8e8)
+          background: var(--primary-background-hover-color);
         }
 
         .harvest-timer:active {
@@ -91,7 +92,8 @@ async function maybeAddTimerButtonToPulse () {
           padding: 0;
           position: absolute;
           top: 0;
-          width: 100%
+          width: 100%;
+          filter: invert(1);
         }
 
         .harvest-timer.running {
