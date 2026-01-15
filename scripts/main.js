@@ -55,8 +55,7 @@ async function maybeAddTimerButtonToPulse () {
           font-size: 0;
           height: 30px !important;
           line-height: 1;
-          margin-block-start: -7px !important;
-          margin-inline-end: -3px !important;
+          margin-inline: auto 8px;
           padding: 3px;
           place-content: center !important;
           place-items: center !important;
@@ -152,13 +151,15 @@ async function maybeAddTimerButtonToPulse () {
         }
       </style>`
 
-      const pulseActionsWrapper = document.querySelector('.pulse_actions_wrapper')
-      if (!pulseActionsWrapper) {
+      // Try new selector first, fall back to old one for backwards compatibility
+      const actionsBar = document.querySelector('.item-page-header-wrapper') || 
+                         document.querySelector('.pulse_actions_wrapper')
+      if (!actionsBar) {
         setTimeout(await maybeAddTimerButtonToPulse, 3000)
         return
       }
-      pulseActionsWrapper.insertAdjacentHTML('beforeend', styles)
-      pulseActionsWrapper.appendChild(timerButton)
+      actionsBar.insertAdjacentHTML('beforeend', styles)
+      actionsBar.prepend(timerButton)
 
       // Trigger Harvest event to add the Timer button.
       let harvestMessaging = document.getElementById('harvest-messaging')
@@ -276,8 +277,9 @@ async function getDataFromMonday() {
     const selectedProjectElement = document.querySelector('#mf-header h2');
     projectName = selectedProjectElement?.textContent || '';
 
-    // Fetch pulseName
-    const pulseNameElement = document.querySelector('.pulse_title h2');
+    // Fetch pulseName - try new selector first, fall back to old one
+    const pulseNameElement = document.querySelector('.item-page-item-name h2') ||
+                             document.querySelector('.pulse_title h2');
     pulseName = pulseNameElement?.textContent || 'Miscellaneous > REPLACE_THIS_WITH_A_DESCRIPTION'; // Harvest requires a default value
 
     // Construct permalink
